@@ -19,6 +19,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        getCatImageResponse()
     }
 
     private val retrofit by lazy {
@@ -39,11 +40,11 @@ class MainActivity : AppCompatActivity() {
     private fun getCatImageResponse() {
         val call = catApiService.searchImages(1, "full")
         call.enqueue(object : Callback<String> {
-            override fun onFailure(call: Call<String?>, t: Throwable) {
+            override fun onFailure(call: Call<String>, t: Throwable) {
                 Log.e(MAIN_ACTIVITY, "Failed to get response", t)
             }
 
-            override fun onResponse(call: Call<String?>, response: Response<String?>) {
+            override fun onResponse(call: Call<String>, response: Response<String>) {
                 if (response.isSuccessful) {
                     apiResponseView.text = response.body()
                 } else {
