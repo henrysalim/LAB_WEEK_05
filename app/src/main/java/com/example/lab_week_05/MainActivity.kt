@@ -4,10 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.example.lab_week_05.api.CatApiService
 import com.example.lab_week_05.model.ImageData
 import retrofit2.Call
@@ -15,7 +12,6 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import retrofit2.converter.scalars.ScalarsConverterFactory
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,7 +37,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getCatImageResponse() {
-        val call = catApiService.searchImages(1, "full")
+        val call = catApiService.searchImages(1, "full", 1)
         call.enqueue(object : Callback<List<ImageData>> {
             override fun onFailure(call: Call<List<ImageData>>, t: Throwable) {
                 Log.e(MAIN_ACTIVITY, "Failed to get response", t)
@@ -49,8 +45,11 @@ class MainActivity : AppCompatActivity() {
 
             override fun onResponse(call: Call<List<ImageData>>, response: Response<List<ImageData>>) {
                 if (response.isSuccessful) {
-                    val image = response.body()
-                    val firstImage = image?.firstOrNull()?.imageUrl.orEmpty()
+                    val imageList = response.body()
+                    val image = imageList?.firstOrNull()
+                    Log.d("IMAGE", image.toString())
+                    val firstImage = image?.imageUrl.orEmpty()
+                    val firstBreed = image?.breeds?.firstOrNull()?.temperament ?: "Unknown"
 
                     if (firstImage.isNotBlank()) {
                         imageLoader.loadImage(firstImage, imageResultView)
@@ -58,7 +57,7 @@ class MainActivity : AppCompatActivity() {
                         Log.d(MAIN_ACTIVITY, "Missing Image URL")
                     }
 
-                    apiResponseView.text = getString(R.string.image_placeholder, firstImage)
+                    apiResponseView.text = getString(R.string.image_placeholder, firstBreed)
                 } else {
                     Log.e(
                         MAIN_ACTIVITY, "Failed to get response\n"
